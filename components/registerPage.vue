@@ -54,14 +54,26 @@
                 v-model="email"
               />
             </div>
-            <label>رقم الهاتف</label>
-            <div class="select-box">
-              <div class="selected-option" @click="toggleDropdown">
-                <div>
-                  <span class="iconify" :data-icon="selectedCountryIcon"></span>
-                  <strong>{{ selectedCountryName }} </strong>
-                  <!-- Show selected country name-->
-                </div>
+            <div class="data">
+              <label>رقم الهاتف</label>
+              <div class="select-box">
+                <select
+                  v-model="selectedCountryCode"
+                  @change="updatePhoneWithCountryCode"
+                  class="input-style phone"
+                  required
+                >
+                  <option value="" disabled>اختر البلد</option>
+                  <option
+                    v-for="country in countries"
+                    :key="country.code"
+                    :value="country.phone"
+                  >
+                    <i :class="country.code"></i> {{ country.name }} +{{
+                      country.phone
+                    }}
+                  </option>
+                </select>
                 <input
                   type="tel"
                   name="tel"
@@ -69,49 +81,27 @@
                   v-model="phone"
                 />
               </div>
-              <div class="options" :class="{ active: showDropdown }">
-                <input
-                  type="text"
-                  class="search-box"
-                  placeholder="Search Country Name"
-                  v-model="searchQuery"
-                  @input="searchCountry"
-                />
-                <ol>
-                  <li
-                    v-for="country in filteredCountries"
-                    :key="country.code"
-                    class="option"
-                    @click="selectCountry(country)"
-                  >
-                    <div>
-                      <i :class="country.code"></i>
-                      <span class="country-name">{{ country.name }}</span>
-                    </div>
-                    <strong>+{{ country.phone }}</strong>
-                  </li>
-                </ol>
+              <div v-if="phoneError" class="error-message">
+                {{ phoneError }}
               </div>
             </div>
             <div class="area">
               <div class="data">
                 <label>الدولة</label>
-                <div class="select-box">
-                  <select
-                    v-model="selectedGovernorate"
-                    class="input-style"
-                    required
+                <select
+                  v-model="selectedGovernorate"
+                  class="input-style"
+                  required
+                >
+                  <option value="" disabled>اختر الدولة</option>
+                  <option
+                    v-for="governorate in governorates"
+                    :key="governorate.id"
+                    :value="governorate.id"
                   >
-                      <option value="" disabled selected>اختر الدولة</option>
-                    <option
-                      v-for="governorate in governorates"
-                      :key="governorate.id"
-                      :value="governorate.id"
-                    >
-                      {{ governorate.name }}
-                    </option>
-                  </select>
-                </div>
+                    {{ governorate.name }}
+                  </option>
+                </select>
               </div>
               <div class="data">
                 <label>المحافظة</label>
@@ -140,9 +130,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useAuthStore } from "../stores/authStore";
-import { useGovernorateStore } from "../stores/governorateStore"; // Import the Governorate store
+import { useGovernorateStore } from "../stores/governorateStore";
 import { useRouter } from "vue-router";
 
 const colors = ref([
@@ -162,48 +152,33 @@ const countries = ref([
   { name: "Bahrain", code: "ri-twitter-fill", phone: 973 },
 ]);
 
-const selectedCountryIcon = ref("ri-twitter-fill");
 const selectedCountryCode = ref("");
-const selectedCountryName = ref("choose");
-const searchQuery = ref("");
-const showDropdown = ref(false);
-
+const phone = ref("");
 const fullName = ref("");
 const email = ref("");
-const phone = ref("");
 const password = ref("");
-const imageUrl = ref("");
 const area = ref("");
-const selectedGovernorate = ref(); // Selected governorate
-const governorates = ref([]); // Governorate data from API
+const selectedGovernorate = ref();
+const governorates = ref([]);
+
+const phoneError = ref(""); // New ref for phone error message
 
 const authStore = useAuthStore();
 const governorateStore = useGovernorateStore();
 const router = useRouter();
 
-const filteredCountries = computed(() => {
-  if (!searchQuery.value) {
-    return countries.value;
-  }
-  return countries.value.filter((country) =>
-    country.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+const updatePhoneWithCountryCode = () => {
+  const selectedCountry = countries.value.find(
+    (country) => country.phone === parseInt(selectedCountryCode.value)
   );
-});
-
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const selectCountry = (country) => {
-  selectedCountryIcon.value = country.code;
-  selectedCountryCode.value = `+${country.phone}`;
-  selectedCountryName.value = country.name;
-  phone.value = selectedCountryCode.value;
-  showDropdown.value = false;
+  if (selectedCountry) {
+    phone.value = `+${selectedCountry.phone}`;
+  }
 };
 
 const handleRegister = async () => {
   try {
+    phoneError.value = ""; // Clear previous error message
     const payload = {
       name: fullName.value,
       phone: phone.value,
@@ -211,12 +186,12 @@ const handleRegister = async () => {
       password: password.value,
       governorateId: selectedGovernorate.value,
       area: area.value,
-      imageUrl: '',
+      imageUrl: "",
     };
     await authStore.register(payload);
-    router.push("/");
+    router.push("/Otp");
   } catch (error) {
-    alert("Registration failed. Please try again.");
+      phoneError.value = error.message?.replace(`/^Error:\s*/`, '')
   }
 };
 
@@ -232,21 +207,4 @@ onMounted(async () => {
 
 <style scoped>
 @import "../public/css/register.css";
-
-.input-style{
-  height: 100%;
-    width: 100%;
-    padding: 10px 12px 10px 12px;
-    font-size: 17px;
-    border-radius: 12px;
-    background: #f7f7f7;
-    border: none;
-    outline: none;
-    cursor: pointer;
-}
-
-select option[value=""] {
-  color: #000000; /* Grey color for placeholder text */
-}
-
 </style>

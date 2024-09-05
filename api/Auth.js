@@ -9,8 +9,8 @@ export function registerCustomer(payload) {
   return axiosInstance.post('/auth/customer/register', payload);
 }
 
-export function sendVerificationOtp(payload) {
-  return axiosInstance.post('/auth/customer/send-verification-otp', payload);
+export function sendVerificationOtp(payload, headers) {
+  return axiosInstance.post('/auth/customer/send-verification-otp', payload, {headers});
 }
 
 export function verifyOtp(payload) {
