@@ -22,23 +22,6 @@
           <div class="radio-input">
             <div class="form-check">
               <div class="label-check">
-                <label class="form-check-label" for="inlineRadio1"
-                  >ماستر كارد</label
-                >
-                <img src="../public/icons/card 1.svg" alt="">
-              </div>
-
-              <input
-                class="form-check-input"
-                type="radio"
-                name="inlineRadioOptions"
-                id="inlineRadio1"
-                value="option1"
-              />
-            </div>
-
-            <div class="form-check">
-              <div class="label-check">
                 <label class="form-check-label" for="inlineRadio1s"
                   >ماستر كارد</label
                 >

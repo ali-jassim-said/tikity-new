@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
     async login(payload) {
       try {
         const response = await loginCustomer(payload);
-        this.user = response.data.user;
+        this.user = response.data;
         this.authToken = response.data.accessToken; // Store accessToken
         this.accessTokenExpiration = response.data.accessTokenExpiration; // Store accessTokenExpiration
         this.isAuthenticated = true;

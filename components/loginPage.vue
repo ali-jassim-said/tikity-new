@@ -26,33 +26,30 @@
         <div>
           <div class="text">مرحبا بعودتك !</div>
           <p>قم بتسجيل الدخول عن طريق البريد الالكتروني وكلمة المرور</p>
-          <form action="#">
+          <form @submit.prevent="handleLogin">
             <div class="data">
               <label>البريد الالكتروني او رقم الهاتف</label>
-              <input type="text" required />
+              <input v-model="emailOrPhone" type="text" required />
             </div>
             <div class="data">
               <label>كلمة المرور</label>
-              <input type="password" required />
+              <input v-model="password" type="password" required />
             </div>
             <div class="forgot-pass">
               <a href="#">نسيت كلمة المرور؟</a>
               <div class="check-box">
                 <label for="checkbox">تذكرني</label>
                 <label class="switch">
-                  <input type="checkbox" />
+                  <input type="checkbox" v-model="rememberMe" />
                   <span class="slider round"></span>
                 </label>
               </div>
             </div>
-
             <div class="btn">
               <div class="inner"></div>
               <button class="log" type="submit">تسجيل الدخول</button>
               <button class="register">
-                ليس لديك حساب؟<nuxt-link to="/Register"
-                  >قم بإنشاء حساب جديد</nuxt-link
-                >
+                ليس لديك حساب؟<nuxt-link to="/Register">قم بإنشاء حساب جديد</nuxt-link>
               </button>
             </div>
           </form>
@@ -71,25 +68,54 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
 
+<script setup>
+import { ref } from 'vue';
+import { useAuthStore } from '../stores/authStore'; // Import your Pinia auth store
+
+// State for the carousel
 const colors = ref([
-  "indigo",
-  "warning",
-  "pink darken-2",
-  "red lighten-1",
-  "deep-purple accent-4",
+  'indigo',
+  'warning',
+  'pink darken-2',
+  'red lighten-1',
+  'deep-purple accent-4',
 ]);
 
 const slides = ref([
-  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
-  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
-  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
-  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
-  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
+  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
+  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
+  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
+  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
+  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
 ]);
+
+// Auth-related state
+const emailOrPhone = ref('');
+const password = ref('');
+const rememberMe = ref(false);
+
+// Use Pinia store
+const authStore = useAuthStore();
+
+const handleLogin = async () => {
+  try {
+    const payload = {
+      emailOrPhone: emailOrPhone.value,
+      password: password.value,
+    };
+
+    // Call login action from the store
+    await authStore.login(payload);
+
+    // Redirect to another page or show success message after login
+    console.log('Login successful');
+  } catch (error) {
+    console.error('Login failed:', error.message);
+  }
+};
 </script>
+
 
 <style scoped>
 @import "../public/css/login.css";

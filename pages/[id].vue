@@ -1,5 +1,5 @@
 <template v-slot:activator="{ props: activatorProps }">
-  <div class="details" >
+  <div class="details">
     <nav>
       <img src="../public/svg/Subtract.svg" alt="" />
       <div class="nav-text">
@@ -18,31 +18,31 @@
           :style="{ backgroundImage: `url(${eventImage(event)})` }"
         ></div>
         <div class="map" id="map" style="width: 100%; height: 245px"></div>
-        <div class="event-details">
+        <div class="event-details"   v-if="event && event.event">
           <div class="one">
             <div class="star">
               <div>5</div>
-              <img src="../public/icons/star.svg" alt="">
+              <img src="../public/icons/star.svg" alt="" />
             </div>
             <div class="logo-svg">
               <div class="logo-card">
                 <p>ينضم بوساطة</p>
-                <div>ABC Group</div>
+                <div>{{event.event.organizer.name}}</div>
               </div>
-              <img src="../public/svg/logo-card.svg" alt="" />
+                  <img :src="`https:${event.event.organizer.imageUrl}`" alt="" />
             </div>
           </div>
           <div class="two">
-            <p>حفلات غنائية</p>
-            <img src="../public/icons/Music notes.svg" alt="">
+            <p>{{event.event.category.name}}</p>
+            <img src="../public/icons/Music notes.svg" alt="" />
           </div>
           <div class="two">
-            <p>12 اكتوبر 2025</p>
-            <img src="../public/icons/detaile.svg" alt="">
+             <p>{{ new Date(event.event.startDate).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }) }}</p>
+            <img src="../public/icons/detaile.svg" alt="" />
           </div>
           <div class="two">
-            <p>05 : 00 PM</p>
-            <img src="../public/icons/tabler-icon-clock-star.svg" alt="">
+            <p>{{ new Date(event,event.startTime)}}</p>
+            <img src="../public/icons/tabler-icon-clock-star.svg" alt="" />
           </div>
         </div>
       </div>
@@ -88,8 +88,15 @@
             </button>
           </div>
         </div>
-        <div class="detaile-card">
-          <div class="one">
+        <div
+          v-if="event && event.event && event.event.ticketTypes"
+          class="detaile-card"
+        >
+          <div
+            v-for="ticketType in event.event.ticketTypes"
+            :key="ticketType.id"
+            class="one"
+          >
             <div class="detaile">
               <div class="number">
                 <p>بطاقة</p>
@@ -98,55 +105,30 @@
                   id="quantity"
                   name="quantity"
                   min="1"
-                  max="5"
+                 :max="ticketType.ticketsCount"
                 />
               </div>
-              <p class="price">20,000 د.ع</p>
-            </div>
-            <p>بطاقة دخول عادية بالمقصوره الاولى</p>
-          </div>
-          <div class="one">
-            <div class="detaile">
-              <div class="number">
-                <p>بطاقة</p>
-                <input
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  min="1"
-                  max="5"
-                />
+              <div class="much">
+                <p class="price">{{ ticketType.price }} د.ع</p>
+                <div>{{ticketType.ticketsCount}}</div>
               </div>
-              <p class="price">20,000 د.ع</p>
             </div>
-            <p>بطاقة دخول عادية بالمقصوره الاولى</p>
+            <p>{{ ticketType.title }}</p>
           </div>
-          <div class="one">
-            <div class="detaile">
-              <div class="number">
-                <p>بطاقة</p>
-                <input
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  min="1"
-                  max="100"
-                />
-              </div>
-              <p class="price">20,000 د.ع</p>
-            </div>
-            <p>بطاقة دخول عادية بالمقصوره الاولى</p>
-          </div>
-            <button class="button" 
+          <button
+            class="button"
             v-bind="activatorProps"
             @click="showDialog = true"
             color="surface-variant"
             text="Open Dialog"
-            variant="flat"><span>حجز التذاكر الان</span></button>
+            variant="flat"
+          >
+            <span>حجز التذاكر الان</span>
+          </button>
         </div>
       </div>
     </div>
-      <category-1/>
+    <category-1 />
 
     <div class="down">
       <div class="footer-down">
@@ -177,9 +159,8 @@
       </div>
     </div>
   </div>
-  <poop-up v-model="showDialog"/>
+  <poop-up v-model="showDialog" />
 </template>
-
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
@@ -190,20 +171,7 @@ import "leaflet/dist/leaflet.css";
 
 const map = ref(null);
 let leafletMap = null;
-
-onMounted(() => {
-  leafletMap = L.map("map").setView([33.3152, 44.3661], 13);
-
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}", {
-    foo: "bar",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(leafletMap);
-
-  L.marker([33.3152, 44.3661]).addTo(leafletMap).bindPopup("A sample popup.");
-
-  map.value = leafletMap;
-});
+let marker = null;
 
 const route = useRoute();
 const { id } = route.params;
@@ -220,6 +188,37 @@ const fetchEvent = async (eventId) => {
   try {
     await eventsStore.fetchEventById(eventId);
     event.value = eventsStore.event;
+
+    if (event.value && event.value.event) {
+      const coordinates = event.value.event.coordinate;
+
+      if (coordinates) {
+        const [latitudeStr, longitudeStr] = coordinates.split(",");
+        const latitude = parseFloat(latitudeStr.trim());
+        const longitude = parseFloat(longitudeStr.trim());
+
+        if (!isNaN(latitude) && !isNaN(longitude)) {
+          if (leafletMap) {
+            leafletMap.setView([latitude, longitude], 13);
+
+            if (marker) {
+              leafletMap.removeLayer(marker);
+            }
+
+            marker = L.marker([latitude, longitude])
+              .addTo(leafletMap)
+              .bindPopup("Event Location")
+              .openPopup();
+          }
+        } else {
+          console.error("Invalid coordinates format");
+        }
+      } else {
+        console.error("Coordinates not found in event data");
+      }
+    } else {
+      console.error("Event data is not correctly formatted or missing");
+    }
   } catch (err) {
     error.value = err.response ? err.response.data.message : err.message;
   } finally {
@@ -230,11 +229,19 @@ const fetchEvent = async (eventId) => {
 const showDialog = ref(false);
 
 function confirmBooking() {
-  showDialog.value = false; 
+  showDialog.value = false;
 }
 
 onMounted(() => {
-  fetchEvent(id);
+  if (route.params.id) {
+    fetchEvent(route.params.id);
+  }
+  leafletMap = L.map("map").setView([33.3152, 44.3661], 13);
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(leafletMap);
 });
 
 watch(
@@ -248,9 +255,17 @@ const eventImage = (event) => {
   const image = event?.event?.images?.find(
     (image) => image.eventImageType === 1
   );
-  return image ? `https:${image.imageUrl}` :"default-image-url";
+  return image ? `https:${image.imageUrl}` : "default-image-url";
 };
 </script>
+
 <style scoped>
-@import '../public/css/detailePage.css';
+@import "../public/css/detailePage.css";
+
+.much {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 </style>
