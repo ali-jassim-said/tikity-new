@@ -40,7 +40,6 @@ input{
 }
 
 .selected-option {
-    background-color: #F7F7F7;
     border-radius: .5rem;
     overflow: hidden;
 
@@ -51,7 +50,6 @@ input{
 
 .selected-option div{
     position: relative;
-
     width: 6rem;
     padding: 0 2.8rem 0 .5rem;
     text-align: center;

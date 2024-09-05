@@ -29,43 +29,101 @@
           <form @submit.prevent="handleRegister">
             <div class="data">
               <label>الاسم الكامل</label>
-              <input type="text" placeholder="مثلا : احمد محمد حسن" required v-model="fullName" />
+              <input
+                type="text"
+                placeholder="مثلا : احمد محمد حسن"
+                required
+                v-model="fullName"
+              />
             </div>
-             <div class="data">
-              <label>المنطقه</label>
-              <input type="text" placeholder="area" required v-model="area" />
-            </div>
-             <div class="data">
-              <label>pic</label>
-              <input type="text" placeholder="pic" required v-model="imageUrl" />
+            <div class="data">
+              <label>الرمز</label>
+              <input
+                type="text"
+                placeholder="password"
+                required
+                v-model="password"
+              />
             </div>
             <div class="data">
               <label>البريد الالكتروني</label>
-              <input type="email" placeholder="email@test.com" required v-model="email" />
-            </div>
-             <div class="data">
-              <label>الرمز</label>
-              <input type="text" placeholder="password" required v-model="password" />
+              <input
+                type="email"
+                placeholder="email@test.com"
+                required
+                v-model="email"
+              />
             </div>
             <label>رقم الهاتف</label>
             <div class="select-box">
-              <div class="selected-option">
+              <div class="selected-option" @click="toggleDropdown">
                 <div>
-                  <span class="iconify" data-icon="flag:gb-4x3"></span>
-                  <strong>+44</strong>
+                  <span class="iconify" :data-icon="selectedCountryIcon"></span>
+                  <strong>{{ selectedCountryName }} </strong>
+                  <!-- Show selected country name-->
                 </div>
-                <input type="tel" name="tel" placeholder="Phone Number" v-model="phone" />
+                <input
+                  type="tel"
+                  name="tel"
+                  placeholder="Phone Number"
+                  v-model="phone"
+                />
               </div>
-              <div class="options">
+              <div class="options" :class="{ active: showDropdown }">
                 <input
                   type="text"
                   class="search-box"
                   placeholder="Search Country Name"
+                  v-model="searchQuery"
+                  @input="searchCountry"
                 />
-                <ol></ol>
+                <ol>
+                  <li
+                    v-for="country in filteredCountries"
+                    :key="country.code"
+                    class="option"
+                    @click="selectCountry(country)"
+                  >
+                    <div>
+                      <i :class="country.code"></i>
+                      <span class="country-name">{{ country.name }}</span>
+                    </div>
+                    <strong>+{{ country.phone }}</strong>
+                  </li>
+                </ol>
               </div>
             </div>
-            <input type="number" placeholder="Country Name" v-model="countryName" />
+            <div class="area">
+              <div class="data">
+                <label>الدولة</label>
+                <div class="select-box">
+                  <select
+                    v-model="selectedGovernorate"
+                    class="input-style"
+                    required
+                  >
+                      <option value="" disabled selected>اختر الدولة</option>
+                    <option
+                      v-for="governorate in governorates"
+                      :key="governorate.id"
+                      :value="governorate.id"
+                    >
+                      {{ governorate.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="data">
+                <label>المحافظة</label>
+                <input
+                  type="text"
+                  placeholder="المحافظة"
+                  required
+                  v-model="area"
+                />
+              </div>
+            </div>
+
             <div class="btn">
               <div class="inner"></div>
               <button class="log" type="submit">تسجيل الدخول</button>
@@ -82,100 +140,66 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useAuthStore } from '../stores/authStore';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from "vue";
+import { useAuthStore } from "../stores/authStore";
+import { useGovernorateStore } from "../stores/governorateStore"; // Import the Governorate store
+import { useRouter } from "vue-router";
 
 const colors = ref([
-  'indigo',
-  'warning',
-  'pink darken-2',
-  'red lighten-1',
-  'deep-purple accent-4',
+  "indigo",
+  "warning",
+  "pink darken-2",
+  "red lighten-1",
+  "deep-purple accent-4",
+]);
+const slides = ref([
+  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
+  "هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.",
 ]);
 
-const slides = ref([
-  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
-  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
-  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
-  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
-  'هو ببساطة نص شكلي (بمعنى أنه ليس بالضرورة نصًا) يُستخدم في صناعة الطباعة والتنضيد.',
+const countries = ref([
+  { name: "Iraq", code: "ri-twitter-fill", phone: 964 },
+  { name: "Bahrain", code: "ri-twitter-fill", phone: 973 },
 ]);
+
+const selectedCountryIcon = ref("ri-twitter-fill");
+const selectedCountryCode = ref("");
+const selectedCountryName = ref("choose");
+const searchQuery = ref("");
+const showDropdown = ref(false);
+
+const fullName = ref("");
+const email = ref("");
+const phone = ref("");
+const password = ref("");
+const imageUrl = ref("");
+const area = ref("");
+const selectedGovernorate = ref(); // Selected governorate
+const governorates = ref([]); // Governorate data from API
 
 const authStore = useAuthStore();
+const governorateStore = useGovernorateStore();
 const router = useRouter();
 
-const fullName = ref('');
-const email = ref('');
-const phone = ref('');
-const countryName = ref(Number);
-const password = ref('');
-const imageUrl = ref('');
-const area = ref('');
-
-onMounted(() => {
-  initializeCountrySelector();
+const filteredCountries = computed(() => {
+  if (!searchQuery.value) {
+    return countries.value;
+  }
+  return countries.value.filter((country) =>
+    country.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
 });
 
-const initializeCountrySelector = () => {
-  const countries = [
-    { name: 'Aland Islands', code: 'ri-twitter-fill', phone: 358 },
-    { name: 'Albania', code: 'ri-twitter-fill', phone: 355 },
-    { name: 'Bahrain', code: 'ri-twitter-fill', phone: 973 },
-  ];
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
 
-  const selectBox = document.querySelector('.options');
-  const searchBox = document.querySelector('.search-box');
-  const inputBox = document.querySelector('input[type="tel"]');
-  const selectedOption = document.querySelector('.selected-option div');
-  let options = null;
-
-  for (let country of countries) {
-    const option = `
-      <li class="option">
-          <div>
-              <i class=${country.code}></i>
-              <span class="country-name">${country.name}</span>
-          </div>
-          <strong>+${country.phone}</strong>
-      </li> `;
-
-    selectBox.querySelector('ol').insertAdjacentHTML('beforeend', option);
-    options = document.querySelectorAll('.option');
-  }
-
-  const selectOption = (event) => {
-    const target = event.currentTarget;
-    const icon = target.querySelector('i').cloneNode(true);
-    const phoneCode = target.querySelector('strong').cloneNode(true);
-
-    selectedOption.innerHTML = '';
-    selectedOption.append(icon, phoneCode);
-
-    inputBox.value = phoneCode.innerText;
-
-    selectBox.classList.remove('active');
-    selectedOption.classList.remove('active');
-
-    searchBox.value = '';
-    selectBox.querySelectorAll('.hide').forEach((el) => el.classList.remove('hide'));
-  };
-
-  const searchCountry = () => {
-    let searchQuery = searchBox.value.toLowerCase();
-    for (let option of options) {
-      let isMatched = option.querySelector('.country-name').innerText.toLowerCase().includes(searchQuery);
-      option.classList.toggle('hide', !isMatched);
-    }
-  };
-
-  selectedOption.addEventListener('click', () => {
-    selectBox.classList.toggle('active');
-    selectedOption.classList.toggle('active');
-  });
-
-  options.forEach((option) => option.addEventListener('click', selectOption));
-  searchBox.addEventListener('input', searchCountry);
+const selectCountry = (country) => {
+  selectedCountryIcon.value = country.code;
+  selectedCountryCode.value = `+${country.phone}`;
+  selectedCountryName.value = country.name;
+  phone.value = selectedCountryCode.value;
+  showDropdown.value = false;
 };
 
 const handleRegister = async () => {
@@ -185,32 +209,44 @@ const handleRegister = async () => {
       phone: phone.value,
       email: email.value,
       password: password.value,
-      governorateId: countryName.value,
+      governorateId: selectedGovernorate.value,
       area: area.value,
-      imageUrl: imageUrl.value,
+      imageUrl: '',
     };
     await authStore.register(payload);
-    router.push('/'); // Redirect to the appropriate page
+    router.push("/");
   } catch (error) {
-    alert('Registration failed. Please try again.');
+    alert("Registration failed. Please try again.");
   }
 };
 
+onMounted(async () => {
+  try {
+    await governorateStore.fetchGovernorate();
+    governorates.value = governorateStore.getGovernorateData;
+  } catch (error) {
+    console.error("Failed to load governorates:", error);
+  }
+});
 </script>
 
 <style scoped>
-@import '../public/css/register.css';
+@import "../public/css/register.css";
 
-/*
-{
-  "imageUrl": "",
-  "name": "string",
-  "phone": "+9647728608890",
-  "email": "emil@test.com",
-  "password": "123@Qwe8989",
-  "governorateId": 1,
-  "area": ""
+.input-style{
+  height: 100%;
+    width: 100%;
+    padding: 10px 12px 10px 12px;
+    font-size: 17px;
+    border-radius: 12px;
+    background: #f7f7f7;
+    border: none;
+    outline: none;
+    cursor: pointer;
 }
 
-*/
+select option[value=""] {
+  color: #000000; /* Grey color for placeholder text */
+}
+
 </style>
