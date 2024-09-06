@@ -213,7 +213,7 @@ a{
   gap: 10px;
   border-radius: 8px;
   border: 1.5px;
-  border: 1.5px solid rgba(34, 129, 217, 1)
+  border: 1.5px solid #fc1055;
   }
   
   
@@ -221,7 +221,7 @@ a{
   font-size: 12px;
   font-weight: 400;
   line-height: 14.63px;
-  color: rgba(34, 129, 217, 1);
+  color: #fc1055;
   }
   
   .swiper-wrapper{

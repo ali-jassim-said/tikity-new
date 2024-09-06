@@ -118,7 +118,7 @@
           <button
             class="button"
             v-bind="activatorProps"
-            @click="showDialog = true"
+            @click="fetchLocationsAndOpenDialog"
             color="surface-variant"
             text="Open Dialog"
             variant="flat"
@@ -159,13 +159,14 @@
       </div>
     </div>
   </div>
-  <poop-up v-model="showDialog" />
+  <poop-up v-model="showDialog" :locations="locations" :event="event"  />
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useEventsStore } from "~/stores/events";
+import { useLocationsStore } from "../stores/locationsStore";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -176,10 +177,13 @@ let marker = null;
 const route = useRoute();
 const { id } = route.params;
 const eventsStore = useEventsStore();
+const locationsStore = useLocationsStore();
 
 const loading = ref(false);
 const error = ref(null);
 const event = ref(null);
+const showDialog = ref(false);
+const locations = ref([]); // Store fetched locations here
 
 const fetchEvent = async (eventId) => {
   loading.value = true;
@@ -226,7 +230,16 @@ const fetchEvent = async (eventId) => {
   }
 };
 
-const showDialog = ref(false);
+// Fetch customer locations and open the dialog
+const fetchLocationsAndOpenDialog = async () => {
+  try {
+    await locationsStore.fetchCustomerLocations();
+    locations.value = locationsStore.getAllLocations;
+    showDialog.value = true;
+  } catch (error) {
+    console.error("Failed to fetch locations:", error);
+  }
+};
 
 function confirmBooking() {
   showDialog.value = false;
@@ -257,6 +270,7 @@ const eventImage = (event) => {
   );
   return image ? `https:${image.imageUrl}` : "default-image-url";
 };
+
 </script>
 
 <style scoped>

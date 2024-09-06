@@ -39,7 +39,7 @@
             <div class="data">
               <label>الرمز</label>
               <input
-                type="text"
+                type="password"
                 placeholder="password"
                 required
                 v-model="password"
@@ -87,13 +87,13 @@
             </div>
             <div class="area">
               <div class="data">
-                <label>الدولة</label>
+                <label>المحافظة</label>
                 <select
                   v-model="selectedGovernorate"
                   class="input-style"
                   required
                 >
-                  <option value="" disabled>اختر الدولة</option>
+                  <option value="" disabled> المحافظة</option>
                   <option
                     v-for="governorate in governorates"
                     :key="governorate.id"
@@ -104,10 +104,10 @@
                 </select>
               </div>
               <div class="data">
-                <label>المحافظة</label>
+                <label>المنطقة</label>
                 <input
                   type="text"
-                  placeholder="المحافظة"
+                  placeholder="المنطقة"
                   required
                   v-model="area"
                 />

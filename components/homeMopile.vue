@@ -7,10 +7,10 @@
       <div class="svg-nav">
         <img src="../public/svg/Logo.svg" alt="svg-home" />
       </div>
-      <div class="nav-login">
+      <nuxt-link to="/Login" class="nav-login">
         <button>Login</button>
         <i class="ri-logout-box-r-line"></i>
-      </div>
+      </nuxt-link>
     </nav>
     <div class="collections">
       <div class="collections-cards">
@@ -55,7 +55,7 @@
         </v-sheet>
       </div>
     </div>
-    <div class="scroll">
+    <div class="scroll" @click="scrollToSecondPage">
       <div class="scroll-text">عرض المزيد</div>
       <div class="scroll-icon"><i class="ri-arrow-down-double-fill"></i></div>
     </div>
@@ -124,6 +124,10 @@ const updateActiveSlide = (event) => {
 
 const isActiveSlide = (index) => {
   return index === activeIndex.value;
+};
+
+const scrollToSecondPage = () => {
+  window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
 };
 
 watch(

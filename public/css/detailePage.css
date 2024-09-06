@@ -271,6 +271,7 @@ nav .nav-text .register {
   align-items: center;
   justify-content: end;
   gap: 10px;
+  margin-bottom: 40px;
 }
 
 .detaile-card {
@@ -345,6 +346,7 @@ nav .nav-text .register {
   width: 184px;
   height: 54px;
   padding: 16px 32px 16px 32px;
+  margin-top: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -439,6 +441,52 @@ nav .nav-text .register {
 }
 
 @media (max-width: 400px) {
+  nav img {
+    width: 80px;
+    height: 33.51px;
+  }
+
+  nav .nav-text .login {
+    padding: 3px 10px 3px 10px;
+  }
+
+  nav .nav-text {
+    gap: 6px;
+  }
+
+  nav .nav-text .login span {
+    font-size: 14px;
+  }
+
+  nav .nav-text .register {
+    font-size: 14px;
+  }
+
+  
+
+  .card .card-img .date {
+    right: 35px;
+  }
+
+  .card .card-img i {
+    left: 40px;
+  }
+
+  .detaile-card .one .detaile {
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .detaile-card .one .detaile .price {
+    font-size: 16px;
+  }
+
+  .img1 {
+    flex-direction: column !important;
+  }
+
   .footer-down .two {
     height: 100%;
     flex-direction: column-reverse;
@@ -458,5 +506,62 @@ nav .nav-text .register {
   .footer-down .one .text div:nth-child(3),
   .footer-down .one .text div:nth-child(4) {
     display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .details-flex {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 20px;
+    padding-top: 40px;
+  }
+
+  .img2 {
+    width: 90% ;
+  }
+
+  .img1 {
+    width: 90%;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .details-img2 {
+    height: 245px;
+    width: 100%;
+    border-radius: 24px;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+
+  .footer-down .one {
+    height: 100%;
+    padding: 24px 20px 6px 20px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: #141417;
+  }
+
+  .footer-down .two{
+    height: 100%;
+    padding: 12px 20px 12px 20px;
+    border: 1px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column-reverse;
+    gap: 10px;
+    align-items: center;
+    background: #fc1055;
   }
 }

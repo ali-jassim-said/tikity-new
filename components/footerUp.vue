@@ -12,10 +12,10 @@
         </p>
         <div class="pay">
           <button>
-            <img src="/img/Mobile app store badge.png" alt="">
+            <img src="/img/Mobile app store badge.png" alt="" />
           </button>
           <button>
-            <img src="/img/Mobile app store badge.png" alt="">
+            <img src="/img/Mobile app store badge.png" alt="" />
           </button>
         </div>
       </div>
@@ -23,7 +23,7 @@
     <div class="footer-down">
       <div class="one">
         <div class="logo">
-          <img src="/img/logoFooter.png" alt="" />
+          <img src="/svg/logo-footer.svg" alt="" />
         </div>
         <div class="text">
           <div>Site map <span>|</span></div>
@@ -39,10 +39,10 @@
           <p>All rights reserved</p>
         </div>
         <div class="icons">
+          <i class="ri-instagram-line"></i>
+          <i class="ri-linkedin-fill"></i>
           <i class="ri-twitter-fill"></i>
-          <i class="ri-twitter-fill"></i>
-          <i class="ri-twitter-fill"></i>
-          <i class="ri-twitter-fill"></i>
+          <i class="ri-youtube-fill"></i>
         </div>
       </div>
     </div>
@@ -54,5 +54,5 @@ export default {};
 </script>
 
 <style scoped>
-@import '../public/css/footer.css';
+@import "../public/css/footer.css";
 </style>

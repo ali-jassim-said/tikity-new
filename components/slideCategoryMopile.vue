@@ -129,6 +129,7 @@ onMounted(async () => {
 }
 
 .card h3 {
+  margin-top: 5px;
   font-size: 16px;
   font-weight: bold;
   line-height: 19.5px;

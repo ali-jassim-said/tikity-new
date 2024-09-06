@@ -10,11 +10,11 @@
 }
 
 .footerUp .img {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-around;
-    height: 493px;
-    margin-top: 56px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  height: 493px;
+  margin-top: 56px;
 }
 
 .footerUp .img .text {
@@ -46,11 +46,11 @@
 
 .footerUp .img .text .pay button img {
   width: 120px;
-height: 40px;
-border-radius: 7px;
-border: 1px;
-border: 1px solid rgba(166, 166, 166, 1);
-margin-top: 10px;
+  height: 40px;
+  border-radius: 7px;
+  border: 1px;
+  border: 1px solid rgba(166, 166, 166, 1);
+  margin-top: 10px;
 }
 
 .footer-down {
@@ -59,15 +59,16 @@ margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  background: rgba(20, 20, 23, 1);
+  background: #141417;
   position: absolute;
   bottom: 0;
 }
 
 .footer-down .one {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  padding: 0px 78px 0px 78px;
 }
 
 .footer-down .one .text {
@@ -99,7 +100,7 @@ margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(to right, #9e499e, #733b8b);
+  background: #FC1055;
 }
 
 .footer-down .two .text {
@@ -108,7 +109,6 @@ margin-top: 10px;
   gap: 48px;
   color: #fff;
 }
-
 
 .footer-down .two .icons {
   display: flex;
@@ -121,35 +121,34 @@ margin-top: 10px;
   cursor: pointer;
 }
 
-
-@media(max-width: 400px){
-  .footer-down .two{
+@media (max-width: 400px) {
+  .footer-down .two {
     height: 100%;
     flex-direction: column-reverse;
     padding: 12px 60px 12px 60px;
   }
 
-  .footer-down .two .text{
+  .footer-down .two .text {
     flex-direction: column;
     gap: 5px;
   }
 
-  .footer-down .two .icons i{
+  .footer-down .two .icons i {
     font-size: 25px;
   }
 
   .footer-down .one .text div:nth-child(1),
   .footer-down .one .text div:nth-child(3),
-  .footer-down .one .text div:nth-child(4){
+  .footer-down .one .text div:nth-child(4) {
     display: none;
   }
 
-  .footerUp .img{
+  .footerUp .img {
     flex-direction: column-reverse;
     height: 100%;
   }
 
-  .footerUp .img .text{
+  .footerUp .img .text {
     width: 100%;
   }
 
@@ -163,7 +162,11 @@ margin-top: 10px;
     width: 335px;
   }
 
-  .footerUp .img .text h2{
+  .footerUp .img .text h2 {
     margin-bottom: 15px;
   }
+
+  .footer-down .one{
+    flex-direction: column;
+}
 }

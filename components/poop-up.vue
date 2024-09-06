@@ -4,7 +4,7 @@
       <div class="pay-pop">
         <div class="head-two">
           <div class="head">
-            <h2>عنوان الطلب</h2>
+            <h2>{{event.event.organizer.name}}</h2>
           </div>
           <div class="address">
             <img class="icon" src="../public/icons/Vector.svg" alt="" />
@@ -147,6 +147,8 @@ import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   modelValue: Boolean,
+  event: Object,
+  locations: Array,
 });
 const emit = defineEmits(["update:modelValue"]);
 
