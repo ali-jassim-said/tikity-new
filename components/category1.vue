@@ -1,11 +1,14 @@
 <template>
   <!-- Global Error Message -->
   <div v-if="hasError" class="error-message">
-    <p>{{ error || emptyDataError }}</p>
+    <p>{{ errorMessage }}</p>
   </div>
 
+  <!-- Loading State -->
+  <div v-else-if="loading" class="loading-spinner">Loading...</div>
+
   <!-- Events Section -->
-  <div v-if="!hasError" class="section-category">
+  <div v-else class="section-category">
     <div class="container">
       <div class="category">
         <div class="header">
@@ -22,10 +25,11 @@
               :key="index"
               class="cards"
             >
+              <nuxt-link :to="`details/${event.id}`">
               <v-card class="card ma-4">
                 <div
                   class="card-img"
-                  :style="{ backgroundImage: 'url(' + eventImage(event) + ')' }"
+                  :style="{ backgroundImage: 'url(' + getEventImage(event) + ')' }"
                 >
                   <div class="date">
                     <p class="number">{{ new Date(event.startDate).getDate() }}</p>
@@ -60,6 +64,7 @@
                   </div>
                 </div>
               </v-card>
+              </nuxt-link>
             </v-slide-group-item>
           </v-slide-group>
         </v-sheet>
@@ -69,44 +74,60 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
-import { useEventsStore } from "~/stores/events"; 
+import { onMounted, ref, computed, watch } from 'vue';
+import { useEventsStore } from '~/stores/events'; 
 
 const eventsStore = useEventsStore();
 const activeIndex = ref(0);
-const error = ref(null);
-const emptyDataError = ref("");
+const errorMessage = ref('');
+const loading = ref(true);
 
-// Function to fetch events
-onMounted(() => {
-  eventsStore.fetchEvents(
-    eventsStore.PageNumber,
-    eventsStore.PageSize,
-    eventsStore.categoryId,
-    eventsStore.collectionId
-  ).catch(err => {
-    error.value = "Failed to fetch events.";
-  });
-
-  // Check if no events are present after fetching
-  if (eventsStore.events.length === 0) {
-    emptyDataError.value = "No events available.";
+// Function to fetch events on component mount
+const fetchEvents = async () => {
+  try {
+    await eventsStore.fetchEvents(
+      eventsStore.PageNumber,
+      eventsStore.PageSize,
+      eventsStore.categoryId,
+      eventsStore.collectionId
+    );
+  } catch (err) {
+    errorMessage.value = "Failed to fetch events.";
+  } finally {
+    loading.value = false;
   }
-});
+};
+
+// Watch for changes in events and handle empty data
+watch(
+  () => eventsStore.events,
+  (newEvents) => {
+    if (newEvents.length === 0) {
+      errorMessage.value = "No events available.";
+    } else {
+      errorMessage.value = ""; // Clear the empty data error if events are present
+    }
+  },
+  { immediate: true }
+);
 
 // Function to get the correct image URL for an event
-const eventImage = (event) => {
+const getEventImage = (event) => {
   if (!event || !event.images) {
     return '/path/to/default-image.jpg'; // Replace with your default image path
   }
-  const image = event.images.find(image => image.eventImageType === 1);
+  const image = event.images.find(img => img.eventImageType === 1);
   return image ? `https://${image.imageUrl}` : '/path/to/default-image.jpg'; // Replace with your default image path
 };
 
-// Computed property to check if there's an error or empty data
-const hasError = computed(() => error.value || emptyDataError.value);
-</script>
+// Fetch events when component is mounted
+onMounted(() => {
+  fetchEvents();
+});
 
+// Computed property to check if there's an error
+const hasError = computed(() => !!errorMessage.value);
+</script>
 
 <style scoped>
 @import '../public/css/category1.css';

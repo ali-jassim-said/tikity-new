@@ -7,7 +7,7 @@ export const useEventsStore = defineStore("events", {
     event: null,  // New state property to store event details
     error: null,
     PageNumber: 1,
-    PageSize: 3,
+    PageSize: 10,
     categoryId: null,
     collectionId: null,
     loading: false,

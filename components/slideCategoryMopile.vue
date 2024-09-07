@@ -21,12 +21,9 @@
   </div>
 </template>
 
-
-
-
 <script setup>
 import { ref, onMounted } from "vue";
-import { useCategoriesStore } from "@/stores/categories";
+import { useCategoriesStore } from "../stores/categories";
 
 const categoriesStore = useCategoriesStore();
 const categories = ref([]);
@@ -49,7 +46,6 @@ onMounted(async () => {
   await fetchCategories();
 });
 </script>
-
 
 
 <style>
@@ -138,7 +134,8 @@ onMounted(async () => {
 }
 
 .card.active h3 {
-  font-size: 20px;
+  font-size: 18px;
+   margin-top: 10px;
   font-weight: 700;
   line-height: 19.5px;
   text-align: center;
@@ -151,7 +148,7 @@ onMounted(async () => {
 }
 
 .card.active i {
-  font-size: 25px;
+  font-size: 20px;
   color: rgba(34, 129, 217, 1);
 }
 </style>

@@ -1,15 +1,14 @@
-<template v-slot:activator="{ props: activatorProps }">
+<template>
   <div class="details">
     <nav>
-      <img src="../public/svg/Subtract.svg" alt="" />
+      <img src="../../public/svg/Subtract.svg" alt="Subtract" />
       <div class="nav-text">
-        <button class="login">
-          <span>تسجيل الدخول</span>
-        </button>
+        <button class="login"><span>تسجيل الدخول</span></button>
         <span>|</span>
         <button class="register">انشاء حساب</button>
       </div>
     </nav>
+
     <div class="details-flex">
       <div class="img1">
         <div
@@ -18,34 +17,56 @@
           :style="{ backgroundImage: `url(${eventImage(event)})` }"
         ></div>
         <div class="map" id="map" style="width: 100%; height: 245px"></div>
-        <div class="event-details"   v-if="event && event.event">
+        <div class="event-details" v-if="event && event.event">
           <div class="one">
             <div class="star">
               <div>5</div>
-              <img src="../public/icons/star.svg" alt="" />
+              <img src="../../public/icons/star.svg" alt="Star" />
             </div>
             <div class="logo-svg">
               <div class="logo-card">
                 <p>ينضم بوساطة</p>
-                <div>{{event.event.organizer.name}}</div>
+                <div>{{ event.event.organizer.name }}</div>
               </div>
-                  <img :src="`https:${event.event.organizer.imageUrl}`" alt="" />
+              <img
+                :src="`https:${event.event.organizer.imageUrl}`"
+                alt="Organizer Logo"
+              />
             </div>
           </div>
           <div class="two">
-            <p>{{event.event.category.name}}</p>
-            <img src="../public/icons/Music notes.svg" alt="" />
+            <p>{{ event.event.category.name }}</p>
+            <img src="../../public/icons/Music notes.svg" alt="Category Icon" />
           </div>
           <div class="two">
-             <p>{{ new Date(event.event.startDate).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }) }}</p>
-            <img src="../public/icons/detaile.svg" alt="" />
+            <p>
+              {{
+                new Date(event.event.startDate).toLocaleDateString("ar-EG", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              }}
+            </p>
+            <img src="../../public/icons/detaile.svg" alt="Date Icon" />
           </div>
           <div class="two">
-            <p>{{ new Date(event,event.startTime)}}</p>
-            <img src="../public/icons/tabler-icon-clock-star.svg" alt="" />
+            <p>
+              {{
+                new Date(event.event.startDate).toLocaleTimeString("ar-EG", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              }}
+            </p>
+            <img
+              src="../../public/icons/tabler-icon-clock-star.svg"
+              alt="Time Icon"
+            />
           </div>
         </div>
       </div>
+
       <div class="img2">
         <div class="category-cards">
           <div v-if="loading">Loading...</div>
@@ -81,10 +102,10 @@
         <div class="text">
           <div class="pay">
             <button>
-              <img src="/img/Mobile app store badge.png" alt="" />
+              <img src="/img/Mobile app store badge.png" alt="App Store" />
             </button>
             <button>
-              <img src="/img/Mobile app store badge.png" alt="" />
+              <img src="/img/Mobile app store badge.png" alt="Play Store" />
             </button>
           </div>
         </div>
@@ -102,15 +123,15 @@
                 <p>بطاقة</p>
                 <input
                   type="number"
-                  id="quantity"
-                  name="quantity"
+                  v-model.number="ticketType.selectedQuantity"
                   min="1"
-                 :max="ticketType.ticketsCount"
+                  :max="ticketType.ticketsCount"
+                  @input="validateQuantity(ticketType)"
                 />
               </div>
               <div class="much">
                 <p class="price">{{ ticketType.price }} د.ع</p>
-                <div>{{ticketType.ticketsCount}}</div>
+                <div>{{ ticketType.ticketsCount }}</div>
               </div>
             </div>
             <p>{{ ticketType.title }}</p>
@@ -128,13 +149,14 @@
         </div>
       </div>
     </div>
+
     <category-1 />
 
     <div class="down">
       <div class="footer-down">
         <div class="one">
           <div class="logo">
-            <img src="../public/svg/logo-footer.svg" alt="" />
+            <img src="../../public/svg/logo-footer.svg" alt="Footer Logo" />
           </div>
           <div class="text">
             <div>Site map <span>|</span></div>
@@ -158,17 +180,16 @@
         </div>
       </div>
     </div>
+
+    <poop-up v-model="showDialog" :locations="locations" :event="event"  :ticketQuantities="ticketQuantities" />
   </div>
-  <poop-up v-model="showDialog" :locations="locations" :event="event"  />
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useEventsStore } from "~/stores/events";
-import { useLocationsStore } from "../stores/locationsStore";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useLocationsStore } from "~/stores/locationsStore";
 
 const map = ref(null);
 let leafletMap = null;
@@ -183,7 +204,8 @@ const loading = ref(false);
 const error = ref(null);
 const event = ref(null);
 const showDialog = ref(false);
-const locations = ref([]); // Store fetched locations here
+const locations = ref([]);
+const ticketQuantities = ref({});
 
 const fetchEvent = async (eventId) => {
   loading.value = true;
@@ -230,31 +252,36 @@ const fetchEvent = async (eventId) => {
   }
 };
 
-// Fetch customer locations and open the dialog
 const fetchLocationsAndOpenDialog = async () => {
   try {
     await locationsStore.fetchCustomerLocations();
     locations.value = locationsStore.getAllLocations;
     showDialog.value = true;
-  } catch (error) {
-    console.error("Failed to fetch locations:", error);
+  } catch (err) {
+    console.error("Failed to fetch locations:", err);
   }
 };
 
-function confirmBooking() {
-  showDialog.value = false;
-}
-
-onMounted(() => {
-  if (route.params.id) {
-    fetchEvent(route.params.id);
+const validateQuantity = (ticketType) => {
+  if (ticketType.selectedQuantity > ticketType.ticketsCount) {
+    ticketType.selectedQuantity = ticketType.ticketsCount;
   }
-  leafletMap = L.map("map").setView([33.3152, 44.3661], 13);
+  ticketQuantities.value[ticketType.id] = ticketType.selectedQuantity;
+};
 
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(leafletMap);
+onMounted(async () => {
+  if (id) {
+    await fetchEvent(id);
+  }
+
+  if (process.client) {
+    const L = (await import("leaflet")).default;
+    leafletMap = L.map("map").setView([33.3152, 44.3661], 13);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(leafletMap);
+  }
 });
 
 watch(
@@ -270,11 +297,11 @@ const eventImage = (event) => {
   );
   return image ? `https:${image.imageUrl}` : "default-image-url";
 };
-
 </script>
 
+
 <style scoped>
-@import "../public/css/detailePage.css";
+@import "../../public/css/detailePage.css";
 
 .much {
   display: flex;

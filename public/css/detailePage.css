@@ -250,6 +250,7 @@ nav .nav-text .register {
 
 .card-text h1 {
   width: 100%;
+  margin-bottom: 35px;
   font-size: 48px;
   font-weight: 400;
   line-height: 48px;
@@ -323,6 +324,7 @@ nav .nav-text .register {
 
 .detaile-card .one .detaile .number input {
   height: 48px;
+  width: 100px;
   padding: 8px 18px 8px 18px;
   border-radius: 12px;
   border: 1px;

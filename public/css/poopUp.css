@@ -155,7 +155,6 @@ p {
   display: flex;
   flex-direction: column;
   align-items: end;
-  padding-left: 50px;
 }
 
 .pay-pop .head-two .address .name-address h3 {
@@ -581,4 +580,13 @@ p {
   .v-overlay {
     border-radius: 20px !important;
   }
+
+  .detaile-card .one .detaile .number input {
+    height: 35px;
+    padding: 0; 
+}
+
+.detaile-card .one .detaile {
+  gap: 5px;
+}
 }

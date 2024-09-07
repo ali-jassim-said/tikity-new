@@ -1,3 +1,7 @@
+p{
+  margin-bottom: 0 !important;
+}
+
 .section-category {
     direction: rtl;
     width: 100%;
@@ -224,4 +228,11 @@
     font-size: 16px;
     margin: 15px 0;
     text-align: center;
+    height: 351px;
+  }
+
+  @media (min-width: 400px) {
+    .error-message {
+      height: 0;
+    }
   }
