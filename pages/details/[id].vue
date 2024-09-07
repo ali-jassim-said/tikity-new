@@ -3,9 +3,9 @@
     <nav>
       <img src="../../public/svg/Subtract.svg" alt="Subtract" />
       <div class="nav-text">
-        <button class="login"><span>تسجيل الدخول</span></button>
+        <nuxt-link to="/Login" class="login"><span>تسجيل الدخول</span></nuxt-link>
         <span>|</span>
-        <button class="register">انشاء حساب</button>
+        <nuxt-link to="/Register" class="register">انشاء حساب</nuxt-link>
       </div>
     </nav>
 
