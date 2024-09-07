@@ -11,10 +11,10 @@
             <div class="address-flex">
               <div class="name-address">
                 <h3>
-                  {{ locations?.data[0].governorate.name }} _
-                  {{ locations?.data[0]?.city || "City Not Available" }}
+                  {{ locations[0]?.governorate.name }} _
+                  {{ locations[0]?.city || "City Not Available" }}
                 </h3>
-                <p>{{ locations?.data[0].street }}</p>
+                <p>{{ locations[0]?.street }}</p>
               </div>
               <img src="../public/svg/logo-card.svg" alt="" />
             </div>
@@ -36,6 +36,7 @@
                 name="inlineRadioOptions"
                 id="inlineRadio1s"
                 value="1"
+                v-model="selectedPaymentType"
               />
             </div>
           </div>
@@ -118,7 +119,7 @@ const props = defineProps({
   locations: Array,
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue']);
 
 // Initialize Pinia store
 const ordersStore = useOrdersStore();
@@ -126,12 +127,12 @@ const ordersStore = useOrdersStore();
 // Dialog open/close state
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit("update:modelValue", value),
+  set: (value) => emit('update:modelValue', value),
 });
 
 // State variables
-const note = ref("");
-const selectedPaymentType = ref(1); // Payment type, assuming "option1" is "Cash on delivery"
+const note = ref('');
+const selectedPaymentType = ref(1); // Payment type, assuming "1" is "Cash on delivery"
 
 // Format the event's start date
 const formattedStartDate = computed(() =>
@@ -170,26 +171,28 @@ async function confirmBooking() {
       count: ticketType.selectedQuantity,
     }));
 
+  const locationId = props.locations?.data[0]?.id || null; // Access the ID of the first location or null
+
   const orderPayload = {
     note: note.value,
     tickets: tickets,
     paymentType: selectedPaymentType.value,
     eventId: props.event.event.id,
-    locationId: props.locations.id || null, // Assuming you use the first location
+    locationId: locationId,
   };
 
   try {
     await ordersStore.createOrder(orderPayload);
-    console.log("Order created successfully");
+    console.log('Order created successfully');
 
     // Close the dialog after confirming
-    emit("update:modelValue", false); 
+    emit('update:modelValue', false); 
   } catch (error) {
-    console.error("Error submitting order:", error);
+    console.error('Error submitting order:', error);
   }
 }
 </script>
 
 <style>
-@import "../public/css/poopUp.css";
+@import '../public/css/poopUp.css';
 </style>
