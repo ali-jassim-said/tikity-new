@@ -158,7 +158,7 @@ const fullName = ref("");
 const email = ref("");
 const password = ref("");
 const area = ref("");
-const selectedGovernorate = ref();
+const selectedGovernorate = ref("");
 const governorates = ref([]);
 
 const phoneError = ref(""); // New ref for phone error message

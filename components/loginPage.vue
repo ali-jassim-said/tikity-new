@@ -72,6 +72,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/authStore'; // Import your Pinia auth store
+import { useRouter } from 'vue-router'; // Import useRouter for navigation
 
 // State for the carousel
 const colors = ref([
@@ -97,6 +98,7 @@ const rememberMe = ref(false);
 
 // Use Pinia store
 const authStore = useAuthStore();
+const router = useRouter(); // Initialize router
 
 const handleLogin = async () => {
   try {
@@ -108,8 +110,8 @@ const handleLogin = async () => {
     // Call login action from the store
     await authStore.login(payload);
 
-    // Redirect to another page or show success message after login
-    console.log('Login successful');
+    // Redirect to home page after successful login
+    router.push({ path: '/' });
   } catch (error) {
     console.error('Login failed:', error.message);
   }

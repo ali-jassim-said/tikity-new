@@ -2,7 +2,7 @@
   <div class="category-picture">
     <img class="pic2" src="../public/img/text1.png" alt="" />
     <div class="middle">
-      <div class="icons-category">
+      <div v-show="categories.length > 0" class="icons-category">
         <i class="ri-arrow-right-s-line" @click="nextSlide"></i>
         <i class="ri-arrow-left-s-line" @click="prevSlide"></i>
       </div>

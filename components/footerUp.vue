@@ -22,9 +22,9 @@
     </div>
     <div class="footer-down">
       <div class="one">
-        <div class="logo">
+        <nuxt-link to="/Register" class="logo">
           <img src="/svg/logo-footer.svg" alt="" />
-        </div>
+        </nuxt-link>
         <div class="text">
           <div>Site map <span>|</span></div>
           <div>Terms & Conditions <span>|</span></div>

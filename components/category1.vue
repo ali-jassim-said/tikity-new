@@ -1,18 +1,37 @@
 <template>
-  <div class="section-category">
+  <!-- Global Error Message -->
+  <div v-if="hasError" class="error-message">
+    <p>{{ error || emptyDataError }}</p>
+  </div>
+
+  <!-- Events Section -->
+  <div v-if="!hasError" class="section-category">
     <div class="container">
       <div class="category">
         <div class="header">
           <div class="text">أكتشف جميع الاحداث</div>
         </div>
-        <v-sheet style="background-color: transparent; direction: rtl;" width="100%" class="category-cards">
-          <v-slide-group v-model="eventsStore.events" class="pa-2" style="width: 100%;">
-            <v-slide-group-item v-for="(event, index) in eventsStore.events" :key="index" class="cards">
+        <v-sheet
+          style="background-color: transparent; direction: rtl;"
+          width="100%"
+          class="category-cards"
+        >
+          <v-slide-group v-model="activeIndex" class="pa-2" style="width: 100%;">
+            <v-slide-group-item
+              v-for="(event, index) in eventsStore.events"
+              :key="index"
+              class="cards"
+            >
               <v-card class="card ma-4">
-                <div class="card-img" :style="{ backgroundImage: 'url(' + eventImage(event) + ')' }">
+                <div
+                  class="card-img"
+                  :style="{ backgroundImage: 'url(' + eventImage(event) + ')' }"
+                >
                   <div class="date">
                     <p class="number">{{ new Date(event.startDate).getDate() }}</p>
-                    <p class="text">{{ new Date(event.startDate).toLocaleString("default", { month: "short" }) }}</p>
+                    <p class="text">
+                      {{ new Date(event.startDate).toLocaleString("default", { month: "short" }) }}
+                    </p>
                   </div>
                   <i class="ri-calendar-2-line"></i>
                 </div>
@@ -50,11 +69,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useEventsStore } from "~/stores/events"; 
 
 const eventsStore = useEventsStore();
 const activeIndex = ref(0);
+const error = ref(null);
+const emptyDataError = ref("");
 
 // Function to fetch events
 onMounted(() => {
@@ -63,7 +84,14 @@ onMounted(() => {
     eventsStore.PageSize,
     eventsStore.categoryId,
     eventsStore.collectionId
-  );
+  ).catch(err => {
+    error.value = "Failed to fetch events.";
+  });
+
+  // Check if no events are present after fetching
+  if (eventsStore.events.length === 0) {
+    emptyDataError.value = "No events available.";
+  }
 });
 
 // Function to get the correct image URL for an event
@@ -75,7 +103,8 @@ const eventImage = (event) => {
   return image ? `https://${image.imageUrl}` : '/path/to/default-image.jpg'; // Replace with your default image path
 };
 
-
+// Computed property to check if there's an error or empty data
+const hasError = computed(() => error.value || emptyDataError.value);
 </script>
 
 

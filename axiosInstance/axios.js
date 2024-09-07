@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosInstance = axios.create();
 
-axiosInstance.defaults.baseURL = 'http://tickity-dev-alb-649436097.eu-central-1.elb.amazonaws.com/api/';
+axiosInstance.defaults.baseURL = 'https://api.tickity.test-alphaber-iq.cloud/api/';
 
 axiosInstance.interceptors.request.use((request) => {
     //request.headers.Authorization = `Bearer`;

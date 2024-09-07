@@ -1,4 +1,4 @@
-import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -6,28 +6,28 @@ export default defineNuxtConfig({
     head: {
       meta: [
         {
-          name: 'description',
-          content: 'tickity'
-        }
+          name: "description",
+          content: "tickity",
+        },
       ],
     },
     pageTransition: {
-      name: 'page',
-      mode: 'in-out'
-    }
+      name: "page",
+      mode: "in-out",
+    },
   },
   build: {
-    transpile: ['vuetify'],
+    transpile: ["vuetify"],
   },
   modules: [
     (_options, nuxt) => {
-      nuxt.hooks.hook('vite:extendConfig', (config) => {
+      nuxt.hooks.hook("vite:extendConfig", (config) => {
         // @ts-expect-error
-        config.plugins.push(vuetify({ autoImport: true }))
-      })
+        config.plugins.push(vuetify({ autoImport: true }));
+      });
     },
-    'nuxt-swiper',
-     'usebootstrap',
+    "nuxt-swiper",
+    "usebootstrap",
   ],
   vite: {
     vue: {
@@ -35,19 +35,12 @@ export default defineNuxtConfig({
         transformAssetUrls,
       },
     },
-   
   },
-  plugins: [
-    '~/plugins/pinia.js',
-    '~/plugins/iconify.js',
-  ],
-  css: [
-    './assets/css/style.css',
-    'remixicon/fonts/remixicon.css',
-  ],
+  plugins: ["~/plugins/pinia.js", "~/plugins/iconify.js"],
+  css: ["./assets/css/style.css", "remixicon/fonts/remixicon.css"],
   runtimeConfig: {
     public: {
       BASEURL: process.env.BASEURL,
     },
   },
-})
+});

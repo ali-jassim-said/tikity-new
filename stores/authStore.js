@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { jwtDecode } from 'jwt-decode';
 import { 
   loginCustomer,
   registerCustomer,
@@ -14,8 +15,10 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     isAuthenticated: false,
-    authToken: null,
+    authToken: null,  // Access token
     accessTokenExpiration: null, // Access token expiration
+    refreshToken: null, // Refresh token 
+    refreshTokenExpiration: null, // Refresh token expiration
   }),
 
   actions: {
@@ -23,13 +26,26 @@ export const useAuthStore = defineStore('auth', {
     async login(payload) {
       try {
         const response = await loginCustomer(payload);
-        this.user = response.data;
-        this.authToken = response.data.accessToken; // Store accessToken
-        this.accessTokenExpiration = response.data.accessTokenExpiration; // Store accessTokenExpiration
+        const { accessToken, accessTokenExpiration, refreshToken, refreshTokenExpiration } = response.data;
+
+        // Store tokens and expiration dates in state
+        this.authToken = accessToken;
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshToken = refreshToken;
+        this.refreshTokenExpiration = refreshTokenExpiration;
         this.isAuthenticated = true;
 
-        // Save token to localStorage
-        localStorage.setItem('authToken', response.data.accessToken);
+        // Decode the token to get user data
+        const decoded = jwtDecode(accessToken);
+        this.user = decoded.Name;
+
+        // Save tokens and expiration data to localStorage
+        localStorage.setItem('authToken', accessToken);
+        localStorage.setItem('accessTokenExpiration', accessTokenExpiration);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('refreshTokenExpiration', refreshTokenExpiration);
+        localStorage.setItem('userName', this.user);
+
       } catch (error) {
         console.error('Login failed:', error.response?.data?.message || error.message);
         throw new Error(error.response?.data?.message || 'Login failed. Please try again.');
@@ -42,16 +58,23 @@ export const useAuthStore = defineStore('auth', {
         const response = await registerCustomer(payload);
 
         if (response.status >= 200 && response.status < 300) {
-          this.user = response.data.user;
-          this.authToken = response.data.accessToken; // Store accessToken
-          this.accessTokenExpiration = response.data.accessTokenExpiration; // Store accessTokenExpiration
+          const { accessToken, accessTokenExpiration } = response.data;
+
+          // Store token and expiration
+          this.authToken = accessToken;
+          this.accessTokenExpiration = accessTokenExpiration;
           this.isAuthenticated = true;
 
-          // Save token to localStorage
-          localStorage.setItem('authToken', response.data.accessToken);
+          // Decode token to get user data
+          const decoded = jwtDecode(accessToken);
+          this.user = decoded.user; // Assuming the token contains a `user` object
 
-          // Automatically send OTP after registration using token
-          await this.sendVerificationOtp();  // No need to pass phone number, token will be used
+          // Save token and expiration data to localStorage
+          localStorage.setItem('authToken', accessToken);
+          localStorage.setItem('accessTokenExpiration', accessTokenExpiration);
+
+          // Automatically send verification OTP after registration
+          await this.sendVerificationOtp();
         } else {
           throw new Error(response.data.message);
         }
@@ -63,13 +86,12 @@ export const useAuthStore = defineStore('auth', {
     // Send verification OTP action
     async sendVerificationOtp() {
       try {
-        // Get token from state or localStorage
         const token = this.authToken || localStorage.getItem('authToken');
         if (!token) {
           throw new Error('No authentication token found. Please log in.');
         }
 
-        // Set headers with Authorization token
+        // Set Authorization headers
         const headers = {
           Authorization: `Bearer ${token}`,
         };
@@ -123,24 +145,35 @@ export const useAuthStore = defineStore('auth', {
     },
 
     // Refresh token action
-    async refreshToken(payload) {
+    async refreshToken() {
       try {
-        const response = await refreshToken(payload);
-        this.authToken = response.data.token;
-        localStorage.setItem('authToken', response.data.token); // Update token in localStorage
+        const response = await refreshToken();
+        const { token } = response.data;
+
+        // Store new token in state and localStorage
+        this.authToken = token;
+        const decoded = jwtDecode(token);
+        this.user = decoded.user; // Update user data after refreshing token
+        localStorage.setItem('authToken', token);
       } catch (error) {
         console.error('Token refresh failed:', error.response?.data?.message || error.message);
         throw new Error(error.response?.data?.message || 'Token refresh failed. Please try again.');
       }
     },
 
+
     // Logout action
     logout() {
       this.user = null;
       this.authToken = null;
-      this.accessTokenExpiration = null; // Clear accessTokenExpiration on logout
+      this.accessTokenExpiration = null;
       this.isAuthenticated = false;
-      localStorage.removeItem('authToken'); // Remove token from localStorage
+
+      // Clear localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('accessTokenExpiration');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('refreshTokenExpiration');
     },
   },
 
@@ -148,6 +181,6 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: (state) => state.isAuthenticated,
     getUser: (state) => state.user,
     getToken: (state) => state.authToken,
-    getTokenExpiration: (state) => state.accessTokenExpiration, // Getter for accessTokenExpiration
+    getTokenExpiration: (state) => state.accessTokenExpiration,
   },
 });
