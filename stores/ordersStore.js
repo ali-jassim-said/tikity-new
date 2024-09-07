@@ -4,7 +4,7 @@ import {
   createCustomerOrder, 
   getCustomerOrderById, 
   cancelCustomerOrder 
-} from '@/api/Order';
+} from '../api/Orders';
 
 export const useOrdersStore = defineStore('orders', {
   state: () => ({

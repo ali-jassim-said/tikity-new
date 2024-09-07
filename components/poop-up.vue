@@ -1,7 +1,6 @@
 <template>
   <v-dialog class="poopup" v-model="isOpen">
     <div class="container-pop">
-      <!-- Payment Section -->
       <div class="pay-pop">
         <div class="head-two">
           <div class="head">
@@ -36,7 +35,7 @@
                 type="radio"
                 name="inlineRadioOptions"
                 id="inlineRadio1s"
-                value="option1"
+                value="1"
               />
             </div>
           </div>
@@ -44,7 +43,7 @@
 
         <div class="content-send">
           <h4>الملاحظات</h4>
-          <textarea name=""></textarea>
+          <textarea v-model="note"></textarea>
         </div>
       </div>
       
@@ -108,10 +107,9 @@
   </v-dialog>
 </template>
 
-
-
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from 'vue';
+import { useOrdersStore } from '../stores/ordersStore'; // Adjust path as necessary
 
 // Define props and emits
 const props = defineProps({
@@ -122,11 +120,18 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
+// Initialize Pinia store
+const ordersStore = useOrdersStore();
+
 // Dialog open/close state
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
 });
+
+// State variables
+const note = ref("");
+const selectedPaymentType = ref(1); // Payment type, assuming "option1" is "Cash on delivery"
 
 // Format the event's start date
 const formattedStartDate = computed(() =>
@@ -156,12 +161,34 @@ function validateQuantity(ticketType) {
   }
 }
 
-// Confirm the booking and close the dialog
-function confirmBooking() {
-  emit("update:modelValue", false); // Close the dialog after confirming
+// Confirm the booking and post the order
+async function confirmBooking() {
+  const tickets = props.event.event.ticketTypes
+    .filter(ticketType => ticketType.selectedQuantity > 0)
+    .map(ticketType => ({
+      ticketTypeId: ticketType.id,
+      count: ticketType.selectedQuantity,
+    }));
+
+  const orderPayload = {
+    note: note.value,
+    tickets: tickets,
+    paymentType: selectedPaymentType.value,
+    eventId: props.event.event.id,
+    locationId: props.locations.id || null, // Assuming you use the first location
+  };
+
+  try {
+    await ordersStore.createOrder(orderPayload);
+    console.log("Order created successfully");
+
+    // Close the dialog after confirming
+    emit("update:modelValue", false); 
+  } catch (error) {
+    console.error("Error submitting order:", error);
+  }
 }
 </script>
-
 
 <style>
 @import "../public/css/poopUp.css";
