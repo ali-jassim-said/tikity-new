@@ -1,6 +1,7 @@
 <template>
   <v-dialog class="poopup" v-model="isOpen">
     <div class="container-pop">
+      <!-- Payment Section -->
       <div class="pay-pop">
         <div class="head-two">
           <div class="head">
@@ -46,13 +47,15 @@
           <textarea name=""></textarea>
         </div>
       </div>
+      
+      <!-- Ticket Details Section -->
       <div class="detaile-pop">
         <div class="detailes">
           <div class="one">
             <div class="text">
               <p>{{ event.event.organizer.description }}</p>
               <div class="date">
-                <p>{{ new Date(event.event.startDate).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }) }}</p>
+                <p>{{ formattedStartDate }}</p>
                 <img src="../public/icons/Group 2.svg" alt="" />
               </div>
               <div class="price">
@@ -60,14 +63,10 @@
                 <img src="../public/icons/Ticket.svg" alt="" />
               </div>
             </div>
-            <img
-              :src="`https:${event.event.organizer.imageUrl}`"
-              alt=""
-              class="img"
-            />
+            <img :src="`https:${event.event.organizer.imageUrl}`" alt="" class="img" />
           </div>
           <div class="detaile-card">
-            <div v-for="ticketType in event.event.ticketTypes" :key="ticketType.id" class="one">
+            <div v-for="ticketType in validTicketTypes" :key="ticketType.id" class="one">
               <div class="detaile">
                 <div class="number">
                   <p>بطاقة</p>
@@ -95,22 +94,13 @@
               </div>
             </div>
           </div>
-          <div class="two">
-            <div class="normal">
-              <div class="many">
-                <p>vip</p>
-                <p>x 3</p>
-              </div>
-              <p>60,000 د.ع</p>
-            </div>
-          </div>
 
           <div class="send">
             <div class="text">
               <div>المجموع الكلي</div>
-              <p>40,000 د.ع</p>
+              <p>{{ totalPrice }} د.ع</p>
             </div>
-            <button><span>اكمال الطلب</span></button>
+            <button @click="confirmBooking"><span>اكمال الطلب</span></button>
           </div>
         </div>
       </div>
@@ -118,36 +108,60 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { defineProps, defineEmits, computed } from "vue";
 
+
+<script setup>
+import { computed } from "vue";
+
+// Define props and emits
 const props = defineProps({
   modelValue: Boolean,
   event: Object,
   locations: Array,
-  ticketQuantities: Number,
 });
+
 const emit = defineEmits(["update:modelValue"]);
 
+// Dialog open/close state
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
 });
 
-function closeDialog() {
-  isOpen.value = false;
-}
+// Format the event's start date
+const formattedStartDate = computed(() =>
+  new Date(props.event.event.startDate).toLocaleDateString('ar-EG', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+);
 
-function confirmBooking() {
-  emit("update:modelValue", false); // Close the dialog after confirming
-}
+// Filter ticket types to include only those with non-zero quantities
+const validTicketTypes = computed(() =>
+  props.event.event.ticketTypes.filter(ticketType => (ticketType.selectedQuantity || 0) > 0)
+);
 
+// Calculate the total price for all selected ticket types
+const totalPrice = computed(() =>
+  validTicketTypes.value.reduce((total, ticketType) => 
+    total + (ticketType.selectedQuantity || 0) * ticketType.price, 0
+  )
+);
+
+// Validate ticket quantity and ensure it doesn't exceed available tickets
 function validateQuantity(ticketType) {
   if (ticketType.selectedQuantity > ticketType.ticketsCount) {
     ticketType.selectedQuantity = ticketType.ticketsCount; // Correct to max value
   }
 }
+
+// Confirm the booking and close the dialog
+function confirmBooking() {
+  emit("update:modelValue", false); // Close the dialog after confirming
+}
 </script>
+
 
 <style>
 @import "../public/css/poopUp.css";
