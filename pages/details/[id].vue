@@ -16,7 +16,7 @@
         <div
           v-if="event && event.event"
           class="details-img2"
-          :style="{ backgroundImage: `url(${eventImage(event)})` }"
+:style="{ backgroundImage: `url(${eventImage(event)})` }"
         ></div>
         <div class="map" id="map" style="width: 100%; height: 245px"></div>
         <div class="event-details" v-if="event && event.event">
@@ -105,10 +105,10 @@
         <div class="text">
           <div class="pay">
             <button>
-              <img src="/img/Mobile app store badge.png" alt="App Store" />
+              <img src="../../public/img/Mobile app store badge.png" alt="App Store" />
             </button>
             <button>
-              <img src="/img/Mobile app store badge.png" alt="Play Store" />
+              <img src="../../public/img/Mobile app store badge.png" alt="Play Store" />
             </button>
           </div>
         </div>
@@ -197,15 +197,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { useEventsStore } from "~/stores/events";
 import { useLocationsStore } from "~/stores/locationsStore";
+import "leaflet/dist/leaflet.css";
 
 const map = ref(null);
 let leafletMap = null;
 let marker = null;
 
+// State and stores
 const route = useRoute();
 const { id } = route.params;
 const eventsStore = useEventsStore();
@@ -218,44 +220,15 @@ const showDialog = ref(false);
 const locations = ref([]);
 const ticketQuantities = ref({});
 
+
+// Fetch event details
 const fetchEvent = async (eventId) => {
   loading.value = true;
   error.value = null;
-  event.value = null;
   try {
     await eventsStore.fetchEventById(eventId);
     event.value = eventsStore.event;
-
-    if (event.value && event.value.event) {
-      const coordinates = event.value.event.coordinate;
-
-      if (coordinates) {
-        const [latitudeStr, longitudeStr] = coordinates.split(",");
-        const latitude = parseFloat(latitudeStr.trim());
-        const longitude = parseFloat(longitudeStr.trim());
-
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-          if (leafletMap) {
-            leafletMap.setView([latitude, longitude], 13);
-
-            if (marker) {
-              leafletMap.removeLayer(marker);
-            }
-
-            marker = L.marker([latitude, longitude])
-              .addTo(leafletMap)
-              .bindPopup("Event Location")
-              .openPopup();
-          }
-        } else {
-          console.error("Invalid coordinates format");
-        }
-      } else {
-        console.error("Coordinates not found in event data");
-      }
-    } else {
-      console.error("Event data is not correctly formatted or missing");
-    }
+    setupMap(); // Call function to set up the map after fetching event data
   } catch (err) {
     error.value = err.response ? err.response.data.message : err.message;
   } finally {
@@ -263,6 +236,34 @@ const fetchEvent = async (eventId) => {
   }
 };
 
+// Set up Leaflet map and markers
+const setupMap = async () => {
+  await nextTick(); // Ensure DOM is fully rendered
+  if (process.client && event.value && event.value.event) {
+    const coordinates = event.value.event.coordinate?.split(",");
+    if (coordinates && coordinates.length === 2) {
+      const latitude = parseFloat(coordinates[0].trim());
+      const longitude = parseFloat(coordinates[1].trim());
+
+      if (!leafletMap) {
+        const L = (await import("leaflet")).default;
+        leafletMap = L.map("map").setView([latitude, longitude], 13);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(leafletMap);
+      }
+
+      if (marker) marker.remove();
+      marker = L.marker([latitude, longitude])
+        .addTo(leafletMap)
+        .bindPopup("Event Location")
+        .openPopup();
+    }
+  }
+};
+
+// Fetch locations and open dialog
 const fetchLocationsAndOpenDialog = async () => {
   try {
     await locationsStore.fetchCustomerLocations();
@@ -273,6 +274,7 @@ const fetchLocationsAndOpenDialog = async () => {
   }
 };
 
+// Validate ticket quantity
 const validateQuantity = (ticketType) => {
   if (ticketType.selectedQuantity > ticketType.ticketsCount) {
     ticketType.selectedQuantity = ticketType.ticketsCount;
@@ -280,21 +282,22 @@ const validateQuantity = (ticketType) => {
   ticketQuantities.value[ticketType.id] = ticketType.selectedQuantity;
 };
 
-onMounted(async () => {
-  if (id) {
-    await fetchEvent(id);
-  }
+// Format event date and time
+const formatEventDate = (date) => {
+  return new Date(date).toLocaleDateString("ar-EG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+const formatEventTime = (date) => {
+  return new Date(date).toLocaleTimeString("ar-EG", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
-  if (process.client) {
-    const L = (await import("leaflet")).default;
-    leafletMap = L.map("map").setView([33.3152, 44.3661], 13);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(leafletMap);
-  }
-});
-
+// Watch for route changes
 watch(
   () => route.params.id,
   (newId) => {
@@ -302,6 +305,14 @@ watch(
   }
 );
 
+// Initialize component
+onMounted(async () => {
+  if (id) {
+    await fetchEvent(id);
+  }
+});
+
+// image
 const eventImage = (event) => {
   const image = event?.event?.images?.find(
     (image) => image.eventImageType === 1
@@ -311,7 +322,8 @@ const eventImage = (event) => {
 </script>
 
 <style scoped>
-@import "../../public/css/detailePage.css";
+@import "../../public/css/detailePage.css"; 
+@import "leaflet/dist/leaflet.css";
 
 .much {
   display: flex;
