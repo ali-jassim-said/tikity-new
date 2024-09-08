@@ -11,10 +11,10 @@
             <div class="address-flex">
               <div class="name-address">
                 <h3>
-                  {{ locations[0]?.governorate.name }} _
-                  {{ locations[0]?.city || "City Not Available" }}
+                  {{ locations?.data[0].governorate.name }} _
+                  {{ locations?.data[0]?.city || "City Not Available" }}
                 </h3>
-                <p>{{ locations[0]?.street }}</p>
+                <p>{{ locations?.data[0].street }}</p>
               </div>
               <img src="../public/svg/logo-card.svg" alt="" />
             </div>

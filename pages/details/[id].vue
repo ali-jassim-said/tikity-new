@@ -1,5 +1,6 @@
 <template>
   <div class="details">
+    <!-- Navigation Bar -->
     <nav>
       <img src="../../public/svg/Subtract.svg" alt="Subtract" />
       <div class="nav-text">
@@ -9,6 +10,7 @@
       </div>
     </nav>
 
+    <!-- Event Details and Map -->
     <div class="details-flex">
       <div class="img1">
         <div
@@ -67,6 +69,7 @@
         </div>
       </div>
 
+      <!-- Additional Event Details and Ticket Booking -->
       <div class="img2">
         <div class="category-cards">
           <div v-if="loading">Loading...</div>
@@ -150,8 +153,10 @@
       </div>
     </div>
 
+    <!-- Category Section -->
     <category-1 />
 
+    <!-- Footer Section -->
     <div class="down">
       <div class="footer-down">
         <div class="one">
@@ -181,7 +186,13 @@
       </div>
     </div>
 
-    <poop-up v-model="showDialog" :locations="locations" :event="event"  :ticketQuantities="ticketQuantities" />
+    <!-- Popup Component -->
+    <poop-up 
+      v-model="showDialog" 
+      :locations="locations" 
+      :event="event"  
+      :ticketQuantities="ticketQuantities" 
+    />
   </div>
 </template>
 
@@ -298,7 +309,6 @@ const eventImage = (event) => {
   return image ? `https:${image.imageUrl}` : "default-image-url";
 };
 </script>
-
 
 <style scoped>
 @import "../../public/css/detailePage.css";

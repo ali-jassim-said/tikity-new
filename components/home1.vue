@@ -18,9 +18,11 @@
         <div class="login-home">Login</div>
         <i class="ri-logout-box-r-line"></i>
       </nuxt-link>
+      <!--   user info comming from the local storage
        <div v-if="userName" class="user-greeting">
          {{ userName }}
       </div>
+      -->
     </nav>
 
     <!-- Collections Section -->
